@@ -138,17 +138,17 @@ function InitLights(){
 
     lights[0] = new THREE.DirectionalLight( 0xe6e6fa, 1.2 );
     lights[0].ambient = 0;
-    scene.add(lights[0]);
+    //scene.add(lights[0]);
 
     THREE.RectAreaLightUniformsLib.init();
 
-    lights[1] = new THREE.RectAreaLight( 0xe6e6fa, 1.1,800,800 );
+    lights[1] = new THREE.RectAreaLight( 0xe6e6fa, 1.1,1200,1200 );
     lights[1].position.set(0,-300,-500);
     lights[1].lookAt(0,0,0);
     lights[1].intensity = 0;
     lightIntensityPuppet = 3;
     scene.add(lights[1]);
-    backLightBasePower = 1;
+    backLightBasePower = 0.8;
 
 
 };
