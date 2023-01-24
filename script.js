@@ -19,11 +19,13 @@ var clock;
 
 var flasherCenter,flasherRed,flasherBlue;
 
+var backLightBasePower;
+
 const bloomParams = {
-    exposure: 0.7,
-    bloomStrength: 1.4,
-    bloomThreshold: 0.4,
-    bloomRadius: 0.8,
+    exposure: 0.9,
+    bloomStrength: 2.99,
+    bloomThreshold: 0.0,
+    bloomRadius: 0.99,
 };
 
 window.onload = function() {
@@ -92,18 +94,7 @@ function Init(){
 };
 
 function InitFlasherLights(){
-    return;
-    flasherCenter = new THREE.Object3D();
-    scene.add(flasherCenter);
 
-    let mat = new THREE.MeshBasicMaterial({color: 0xffccaa});
-
-    let a = new THREE.SphereGeometry(5, 32, 16);
-    let b = new THREE.Mesh(a,mat);
-
-    //b.position.z -= 800;
-
-    flasherCenter.add(b);
 };
 function InitPostProcessing(){
     renderer.gammaFactor = -100.0;
@@ -147,19 +138,17 @@ function InitLights(){
 
     lights[0] = new THREE.DirectionalLight( 0xe6e6fa, 1.2 );
     lights[0].ambient = 0;
-
-    lights[0].intensity = 5;
-
-    //scene.add(lights[0]);
+    scene.add(lights[0]);
 
     THREE.RectAreaLightUniformsLib.init();
 
     lights[1] = new THREE.RectAreaLight( 0xe6e6fa, 1.1,800,800 );
     lights[1].position.set(0,-300,-500);
     lights[1].lookAt(0,0,0);
-    lights[1].intensity = 5;
+    lights[1].intensity = 0;
     lightIntensityPuppet = 3;
     scene.add(lights[1]);
+    backLightBasePower = 1;
 
 
 };
@@ -282,9 +271,8 @@ function onMouseTap(){
     else if(cameraPositionPuppet.position.z < 200) val = 2.8;
     else if(cameraPositionPuppet.position.z < 250) val = 3.5;
 
-    //lights[0].intensity = val;
-    //lights[0].intensity = val;
-    //lights[1].intensity = val;
+    lights[0].intensity = val;
+    lights[1].intensity = val;
     lightIntensityPuppet = val;
 };
 function onMouseWheel(event){
@@ -303,19 +291,19 @@ function cameraZoom(){
     camera.position.lerp(cameraPositionPuppet.position,zoomDamping);
 };
 function lightDamp(){
-    return;
-
     if(lights[1].intensity < lightIntensityPuppet - 0.1){
         lights[1].intensity += 0.02;
-        flasherCenter.scale += 0.03;
+        //flasherCenter.scale += 0.03;
     }else if(lights[1].intensity > lightIntensityPuppet + 0.1){
         lights[1].intensity -= 0.012;
-        flasherCenter.scale -= 0.03;
-
+        //flasherCenter.scale -= 0.03;
     }
 
-    if(lightIntensityPuppet > 1.0){
+    if(lightIntensityPuppet > backLightBasePower){
         lightIntensityPuppet -= (lightIntensityPuppet - 1.0) / 33 ;
+    }
+    if(lightIntensityPuppet < backLightBasePower){
+        lightIntensityPuppet = backLightBasePower;
     }
 };
 function milimObjectRotate(){
@@ -333,14 +321,20 @@ function milimObjectRotate(){
     milimObject.quaternion.normalize();
 
 };
+function checkCameraBounce(timer){
+
+    cameraPositionPuppet.z = 0;
+
+}
 function Tick(){
     var timer = 0.0001 * Date.now();
+
     requestAnimationFrame(Tick);
 
     milimObjectRotate();
     cameraZoom();
     lightDamp();
-
+    checkCameraBounce();
 
     composer.render(0.1);
     //TWEEN.update();
